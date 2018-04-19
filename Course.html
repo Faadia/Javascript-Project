@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>COURSES-CODE4CT</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="CSS/styles.css">
+    <style>
+    .wrap {
+      position: relative;
+      right: 0;
+      box-shadow: 10px -10px 20px -10px rgba(0, 0, 0, 0.8);
+      transition: all 200ms ease-out;
+    }
+
+    .wrap.active {
+      right: 18em;
+    }
+
+    #cart {
+      clear: both;
+      overflow: hidden;
+    }
+
+    .js #cart {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 18em;
+      height: 100%;
+    }
+
+    .product {
+      position: relative;
+      z-index: 1;
+      float: left;
+      width: 50%;
+      height: 300px;
+      overflow: hidden;
+      background-position: center center;
+      background-size: cover;
+    }
+    .product > * {
+      margin: 20px 25px;
+      opacity: 0;
+      transition: opacity 200ms ease-out;
+    }
+    .product:hover:before {
+      position: absolute;
+      top: 0;
+      display: inline-block;
+      width: 100%;
+      height: 300px;
+      opacity: 0.3;
+      background: gray;
+      content: "";
+    }
+    .product > * {
+      margin: 20px 25px;
+      opacity: 0;
+      transition: opacity 200ms ease-out;
+    }
+    .product:hover > *, .product .active {
+      opacity: 1;
+    }
+    .product h1 {
+      padding: 15px 0;
+      border-bottom: 1px dotted gray;
+      font-weight: normal;
+      font-size: 1.6em;
+      color: #ed524d;
+    }
+    .product p {
+      margin-bottom: 30px;
+      line-height: 1.5em;
+      font-size: 25px;
+    }
+    .product .button {
+      position: relative;
+      display: block;
+      width: 150px;
+      height: 50px;
+      text-align: center;
+      perspective: 1000px;
+      /* Button magic */
+    }
+    .product .button .price {
+      position: absolute;
+      z-index: 1;
+      top: 2px;
+      display: block;
+      width: 50px;
+      height: 46px;
+      border-right: 1px solid #9cdaf0;
+      border-radius: 2px 0 0 2px;
+      background: #fff;
+      line-height: 45px;
+      color: #515151;
+    }
+    .product .button .addtocart {
+      position: absolute;
+      left: 48px;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 300ms;
+      cursor: pointer;
+    }
+    .product .button .addtocart > div {
+      position: absolute;
+      display: block;
+      width: 150px;
+      height: 50px;
+      border-radius: 0 2px 2px 0;
+      line-height: 50px;
+    }
+    .product .button .addtocart > .add {
+      background: #fff;
+      color: #7cbae6;
+      transition: background 150ms ease-out;
+    }
+    .product .button .addtocart > .add:hover {
+      background: #7cbae6;
+      color: #fff;
+    }
+    .product .button .addtocart > .added {
+      background: #f63;
+      color: #fff;
+      transform: rotateX(90deg) translateZ(25px);
+    }
+    .product .button .addtocart.active {
+      animation-name: rotate;
+      animation-duration: 1s;
+    }
+
+    /* Cart & Cart Items
+     * ============================ */
+    #cart {
+      background: #ed524d;
+    }
+
+    #cart > h2 {
+      height: 64px;
+      margin: 0;
+      background: #bbb1b3;
+      font-weight: bold;
+      font-size: 1.2em;
+      text-align: center;
+      line-height: 64px;
+    }
+
+    /* Styles for each cart item */
+    .cart-items {
+      padding: 0;
+    }
+
+    .cart-items > li {
+      background: #A52A2A;
+      list-style: none;
+    }
+
+    .cart-product {
+      position: relative;
+      display: inline-block;
+      height: 75px;
+      width: 75px;
+      background-size: cover;
+      vertical-align: top;
+    }
+    .cart-product input.quantity {
+      width: 75px;
+      height: 75px;
+      padding: 0;
+      border: 0;
+      border-right: 1px solid #333;
+      font-size: 2.5em;
+      line-height: 75px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .cart-description {
+      display: inline-block;
+      height: 75px;
+      width: 160px;
+      margin-left: 10px;
+      text-align: right;
+      vertical-align: top;
+    }
+
+    .cart-description h3 {
+      margin: 8px;
+      font-size: 1em;
+      color: #7cbae6;
+    }
+
+    .cart-description .subtotal {
+      position: relative;
+      display: inline-block;
+      margin: 8px;
+      font-size: 0.8em;
+    }
+
+    /* Styling for Total Costs */
+    .total {
+      margin-top: 50px;
+      font-size: 2em;
+    }
+
+    .total > * {
+      display: block;
+      padding-bottom: 10px;
+      margin: 0 20px 10px 20px;
+      font-size: 0.8em;
+      text-align: left;
+    }
+
+    .total span {
+      float: right;
+      text-align: right;
+    }
+
+    .shipping, .taxes, .subtotalTotal {
+      border-bottom: 1px dotted #515151;
+    }
+
+    .finalTotal {
+      color: #7cbae6;
+    }
+
+    a.checkout {
+      height: 35px;
+      padding: 0;
+      margin-top: 30px;
+      border-radius: 3px;
+      background: #247ebe;
+      font-size: 1em;
+      text-align: center;
+      text-transform: uppercase;
+      line-height: 35px;
+      transition: background 150ms ease-out;
+      cursor: pointer;
+    }
+    a.checkout:hover {
+      background: #3c98da;
+    }
+    a.checkout.active {
+      animation-name: shake;
+      animation-duration: 800ms;
+    }
+
+    .success {
+      display: none;
+      text-align: center;
+    }
+
+    .success:after {
+      display: block;
+      font-size: 0.9em;
+      text-transform: none;
+      content: "Your purchase was successful! Thank you so much for shopping with us.";
+    }
+
+    /* Media Queries*/
+    @media (max-width: 720px) {
+      .product {
+        width: 100%;
+      }
+    }
+    @media (max-width: 420px) {
+      /* Hide text in the cart link to save room */
+      .cart-text > span {
+        display: none;
+      }
+    }
+    /* Keyframe Animations */
+    @keyframes rotate {
+      35% {
+        transform: translateZ(-100px) rotateX(-90deg);
+      }
+      72% {
+        transform: translateZ(-100px) rotateX(-90deg);
+      }
+      100% {
+        transform: translateZ(-100px);
+      }
+    }
+    @keyframes shake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+      }
+      20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+      }
+    }
+    </style>
+  </head>
+  <body>
+    <div>
+      <nav>
+	  <img src="images/code4ct-logo-1.jpg" alt="images" height="50" width="180">
+    <a href="index.html">HOME</a>
+    <a href="Course.html">COURSES</a>
+    <a href="About.html">ABOUT</a>
+    <a href="Portfolio.html">PORTFOLIO</a>
+    <a href="#">CONTACT</a>
+
+        <form id="SearchInput">
+          <input type="text" id="input" name="search" placeholder="Search...">
+          <button type="submit" id="btn-search"><i class="fa fa-search"></i></button>
+        </form>
+      </nav>
+    </div>
+
+    <div id='cart'>
+    <h2>CodeSpace's Shopping Cart</h2>
+    <ul class='cart-items'></ul>
+    <div class='total'>
+      <div class='subtotalTotal'>
+        Subtotal
+        <span>$0.00</span>
+      </div>
+      <div class='taxes'>
+        Tax
+        <span>$0.00</span>
+      </div>
+      <div class='shipping'>
+        Shipping
+        <span>$0.00</span>
+      </div>
+      <div class='finalTotal'>
+        Total
+        <span>$0.00</span>
+      </div>
+      <a class='checkout'>
+        Finished !
+      </a>
+      <p class='success'></p>
+    </div>
+  </div>
+  <div class='wrap' id='wrap'>
+    <section class='shop'></section>
+  </div>
+  <!-- / Product Templates for Shop & Cart -->
+  <script id='productTemplate' type='text/template'>
+  <div class="product">
+      <h1></h1>
+        <p></p>
+      <div class="button">
+        <div class="price">
+      </div>
+    <a class="addtocart">
+      <div class="add">Add to Cart</div>
+      <div class="added">Added!</div>
+    </a>
+      </div>
+  </div>
+  </script>
+  <script id='cartItem' type='text/template'>
+    <li>
+      <div class="cart-product">
+        <input class="quantity" value="1">
+      </div>
+      <div class="cart-description">
+        <h3></h3>
+          <span class="subtotal"></span>
+      </div>
+    </li>
+  </script>
+  <footer>
+   <div id="FL_footer">
+    <div class="footer_column">
+      <p style="margin-top: 70px;">Code for Cape Town is a project of Innovate South Africa, which is a registered non-profit (137806NPO) and a Public Beneficiary Organisation (930050338)</p>
+    </div>
+
+    <div class="Middle_Column">
+      <h3>Company</h3>
+        <ul>
+          <li><a href="#">About us</a></li>
+          <li><a href="#">Contact us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Testimonials</a></li>
+          <li><a href="#">Affiliated Program</a></li>
+        </ul>
+    </div>
+
+    <div class="Middle_Column">
+      <h3>Help & Support</h3>
+       <ul>
+         <li><a href="#">Help centre</a></li>
+         <li><a href="#">Free sample template</a></li>
+         <li><a href="#">Refund Policy</a></li>
+         <li><a href="#">Report Spam</a></li>
+       </ul>
+    </div>
+
+    <div class="footer_column">
+      <h3>Contact</h3>
+      <div>
+        <img src="images/phone-call.png" alt="image">
+        <a href="#"><p id="tel">021 685 0991</p></a>
+      </div>
+      <div>
+        <img src="images/close-envelope.png" alt="image">
+        <a href="#"><p id="email">info@code4ct.com</p></a>
+     </div>
+       <p><img src="images/location.png" alt="image"></p>
+      <address id="location">
+        <a href="#"><p>Innovate South Africa <br>
+        403 Old Castle Brewery <br>
+        6 Beach Rd <br>
+        Woodstock <br>
+        Cape Town <br>
+        7915 </p></a>
+      </address>
+    </div>
+  </div>
+
+    <div>
+        <p id="fl_footer">copyright 2017 PRIVACY POLICY </p>
+        <p id="footerContainer">Follow Us:
+          <a href="#" class="fa fa-facebook"></a>
+          <a href="#" class="fa fa-twitter"></a>
+          <a href="#" class="fa fa-pinterest"></a>
+          <a href="#" class="fa fa-google"></a>
+          <a href="#" class="fa fa-linkedin"></a>
+          <a href="#" class="fa fa-skype"></a></p>
+      </div>
+  </footer>
+<script type="text/javascript" src="Javascript/course.js"></script>
+  </body>
+</html>
